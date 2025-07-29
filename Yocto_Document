@@ -1,0 +1,180 @@
+
+> Project Requirement :-
+
+YOLOv8 (pigeon detection)
+
+Stepper/servo motor control
+
+Laser sensor trigger
+
+Audio device output
+
+Wi-Fi connectivity
+
+Dropbear SSH server
+
+CSI camera support
+
+///////////////////////
+
+Run this to install Yocto dependencies:
+
+sudo apt update
+
+sudo apt install gawk wget git-core diffstat unzip texinfo gcc-multilib \
+  build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
+  xz-utils debianutils iputils-ping libsdl1.2-dev xterm
+
+2. Create a Working Directory
+
+mkdir -p ~/yocto_opi3
+cd ~/yocto_opi3
+
+3. Clone Required Layers Manually
+Poky (Yocto Core):
+
+git clone -b dunfell git://git.yoctoproject.org/poky
+
+ meta-openembedded (extra recipes):
+
+git clone -b dunfell git://git.openembedded.org/meta-openembedded
+
+cd poky
+
+for meta layer rk 3566 board
+
+git clone https://github.com/JeffyCN/meta-rockchip.git -b dunfell
+
+
+check /meta-rockchip/conf/machine/rpckchip-rk3566.conf
+
+>> local.conf
+
+# This sets the default machine to be qemux86-64 if no other machine is selected:
+
+MACHINE ??= "qemux86-64"
+MACHINE = "rockchip-rk3566-evb"
+
+>> bblayer.conf
+
+  ${TOPDIR}/../meta \
+  ${TOPDIR}/../meta-poky \
+  ${TOPDIR}/../meta-yocto-bsp \
+  ${TOPDIR}/../meta-openembedded/meta-oe \
+  ${TOPDIR}/../meta-openembedded/meta-python \
+  ${TOPDIR}/../meta-openembedded/meta-networking \
+  ${TOPDIR}/../meta-openembedded/meta-multimedia \
+  ${TOPDIR}/../meta-rockchip \
+  "
+
+added own layer
+
+bitbake-layers create-layer meta-pigeon
+
+//////////////////////////////
+
+Issue happen build time for bitbake you should try
+
+ERROR: Unable to connect to bitbake server, or start one (server startup failures would be in bitbake-cookerdaemon.log).
+
+yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ pkill -f bitbake
+yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ ps aux | grep bitbake
+yocto      21468  0.5  0.1 114560 29032 pts/1    Tl   15:58   0:05 python3 /home/yocto/workspace/yocto_opi3/poky/bitbake/bin/bitbake core-image-pigeon
+yocto      21480  2.2  1.8 311912 298684 ?       S    15:58   0:22 python3 /home/yocto/workspace/yocto_opi3/poky/bitbake/bin/bitbake core-image-pigeon
+yocto     435687  0.0  0.1 113112 28144 pts/1    Tl   16:12   0:00 python3 /home/yocto/workspace/yocto_opi3/poky/bitbake/bin/bitbake core-image-pigeon
+yocto     436156  0.0  0.0   8912   720 pts/1    S+   16:15   0:00 grep --color=auto bitbake
+yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ rm -rf bitbake-cookerdaemon.log bitbake.lock.*
+yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ rm -f /tmp/bitbake.sock
+yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ rm -rf tmp/cache
+
+
+//////
+///use command for recipe file MIT licences creation process
+
+md5sum LICENSE
+
+output you put on 
+LICENSE = "MIT"
+
+LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
+
+
+////////////////
+used above command to set bitbake
+//
+show layer 
+bitbake-layers show-layer
+bitbake-layers show-recipies
+bitbake-layers show-recipes python3
+/////////////////////
+
+//Camera device for kernel 6.1 version/
+
+Camera Sensor	  Resolution      Interface	  Works with OPi 3B v2.1
+
+1) OV5647	   5MPs             MIPI CSI-2	  Yes
+2) IMX219	   8MPs             MIPI CSI-2	  Yes
+3) OV8865	   8MPs             MIPI CSI-2          Yes
+       
+Note : OV5647 OR IMX219 this camera sensor will be recommended support on orange pi OPi 3B v2.1
+
+
+
+//////////////////////
+
+bitbake -c menuconfig virtual/kernel
+
+Kernel Configuration Required
+
+To use any of these, your kernel must enable:
+
+CONFIG_VIDEO_OV5647=y
+CONFIG_VIDEO_GC2145=y
+CONFIG_VIDEO_IMX219=y
+CONFIG_VIDEO_RK_ISP1=y
+CONFIG_VIDEO_RK_CSI2=y
+
+///////////
+
+
+cmake_3.27.9.bb file below
+
+SUMMARY = "Cross-platform build system"
+DESCRIPTION = "CMake is a cross-platform open-source tool for defining build processes."
+HOMEPAGE = "https://cmake.org/"
+LICENSE = "BSD-3-Clause"
+LIC_FILES_CHKSUM = "file://Copyright.txt;md5=72c6e6e7e2a0c8d9a3c6a6efad597240"
+
+SRC_URI = "https://github.com/Kitware/CMake/releases/download/v${PV}/cmake-${PV}.tar.gz"
+SRC_URI[sha256sum] = "5f760b50b8ecc9c0c37135fae5fbf00a2fef617059aa9d61c1bb91653e5a8bfc"
+
+S = "${WORKDIR}/cmake-${PV}"
+
+DEPENDS = "zlib bzip2"
+
+inherit cmake
+
+EXTRA_OECMAKE = "-DCMAKE_USE_SYSTEM_CURL=ON -DBUILD_CursesDialog=ON"
+
+BBCLASSEXTEND = "native nativesdk"
+
+/////////////////////////////////
+
+How to Flash It?
+
+If you're on Linux, use dd or bmaptool:
+
+sudo dd if=core-image-pigeon-rockchip-rk3566-evb-20250726053746.rootfs.wic of=/dev/sdX bs=4M status=progress && sync
+
+Replace /dev/sdX with your SD card device (e.g., /dev/sdb).
+You can check with:
+
+lsblk
+
+Or with bmaptool (faster):
+
+sudo bmaptool copy core-image-pigeon-rockchip-rk3566-evb-20250726053746.rootfs.wic /dev/sdX
+
+
+
+////
