@@ -50,6 +50,19 @@ check /meta-rockchip/conf/machine/rpckchip-rk3566.conf
 
 >> local.conf
 
+
+IMAGE_INSTALL += " \
+    python3 \
+    python3-pip \
+    opencv \
+    v4l-utils \
+    alsa-utils \
+    dropbear \
+    linux-firmware \
+    wpa-supplicant \
+    python3-libgpiod \
+"
+
 # This sets the default machine to be qemux86-64 if no other machine is selected:
 
 MACHINE ??= "qemux86-64"
