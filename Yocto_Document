@@ -62,6 +62,10 @@ IMAGE_INSTALL += " \
     wpa-supplicant \
     python3-libgpiod \
 "
+/////////////install yolo package
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip3 install ultralytics
+
 
 # This sets the default machine to be qemux86-64 if no other machine is selected:
 
@@ -94,14 +98,7 @@ yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ pkill -f bitbake
 yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ ps aux | grep bitbake
 yocto      21468  0.5  0.1 114560 29032 pts/1    Tl   15:58   0:05 python3 /home/yocto/workspace/yocto_opi3/poky/bitbake/bin/bitbake core-image-pigeon
 yocto      21480  2.2  1.8 311912 298684 ?       S    15:58   0:22 python3 /home/yocto/workspace/yocto_opi3/poky/bitbake/bin/bitbake core-image-pigeon
-yocto     435687  0.0  0.1 113112 28144 pts/1    Tl   16:12   0:00 python3 /home/yocto/workspace/yocto_opi3/poky/bitbake/bin/bitbake core-image-pigeon
-yocto     436156  0.0  0.0   8912   720 pts/1    S+   16:15   0:00 grep --color=auto bitbake
-yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ rm -rf bitbake-cookerdaemon.log bitbake.lock.*
-yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ rm -f /tmp/bitbake.sock
-yocto@yocto-MS-7D48:~/workspace/yocto_opi3/poky/build$ rm -rf tmp/cache
 
-
-//////
 ///use command for recipe file MIT licences creation process
 
 md5sum LICENSE
@@ -131,7 +128,11 @@ Camera Sensor	  Resolution      Interface	  Works with OPi 3B v2.1
        
 Note : OV5647 OR IMX219 this camera sensor will be recommended support on orange pi OPi 3B v2.1
 
+For hardware control and inference automation, create a meta-my_pigeon with your own
 
+    Python scripts
+
+    Systemd services to auto-run them
 
 //////////////////////
 
