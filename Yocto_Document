@@ -1,5 +1,6 @@
 
 > Project Requirement :-
+Controller Orangepi OPI 3b v2.1 rockchip 3566 soc
 
 YOLOv8 (pigeon detection)
 
@@ -185,10 +186,8 @@ You can check with:
 
 lsblk
 
-Or with bmaptool (faster):
+Or with bmaptool (faster) or use balena ethcer
 
 sudo bmaptool copy core-image-pigeon-rockchip-rk3566-evb-20250726053746.rootfs.wic /dev/sdX
 
-
-
-////
+............
